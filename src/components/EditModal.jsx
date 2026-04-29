@@ -112,12 +112,15 @@ export default function EditModal({ isOpen, onClose, onSave, item, table }) {
             </>
           )}
 
-          {(table === 'projects' || table === 'experiences' || table === 'awards') && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              {renderField("Link URL", "link")}
-              {renderField("Link Text", "link_text")}
-            </div>
-          )}
+          {/* Links Logic */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+             {table === 'projects' && renderField("GitHub/Project Link", "github_link")}
+             {table === 'experiences' && renderField("Website Link", "link")}
+             {table === 'awards' && renderField("Credential Link", "link")}
+             
+             {(table === 'experiences' || table === 'awards') && renderField("Link Label", "link_text")}
+             {table === 'projects' && renderField("Link Label (Optional)", "link_text")}
+          </div>
 
           <div className="input-group">
             <label>Visibility</label>
@@ -131,44 +134,31 @@ export default function EditModal({ isOpen, onClose, onSave, item, table }) {
             </select>
           </div>
 
-          {/* List Fields (Bullets / Skills / Tags) */}
-          {table !== 'skills' && (
+          {/* List Fields (Bullets) */}
+          {(table !== 'skills') && (
             <div className="list-editor">
-              <label>{table === 'projects' ? 'Tech Stack Tags' : 'Bullets / Highlights'}</label>
-              {((table === 'projects' ? formData.tags : formData.bullets) || []).map((item, i) => (
+              <label>Bullets / Highlights</label>
+              {(formData.bullets || []).map((b, i) => (
                 <div key={i} className="list-row">
-                  <input 
-                    value={typeof item === 'string' ? item : item.text || ''} 
-                    onChange={(e) => {
-                      if (table === 'projects') {
-                        handleArrayChange('tags', i, null, e.target.value);
-                      } else {
-                        handleArrayChange('bullets', i, 'text', e.target.value);
-                      }
-                    }} 
-                  />
-                  <button onClick={() => removeArrayItem(table === 'projects' ? 'tags' : 'bullets', i)} className="btn-danger-small"><Trash2 size={14}/></button>
+                  <input value={b.text || ''} onChange={(e) => handleArrayChange('bullets', i, 'text', e.target.value)} />
+                  <button onClick={() => removeArrayItem('bullets', i)} className="btn-danger-small"><Trash2 size={14}/></button>
                 </div>
               ))}
-              <button 
-                onClick={() => addArrayItem(table === 'projects' ? 'tags' : 'bullets', table === 'projects' ? '' : { text: '' })} 
-                className="btn-add"
-              >
-                <Plus size={14}/> Add {table === 'projects' ? 'Tag' : 'Bullet'}
-              </button>
+              <button onClick={() => addArrayItem('bullets', { text: '' })} className="btn-add"><Plus size={14}/> Add Bullet</button>
             </div>
           )}
 
-          {table === 'skills' && (
+          {/* Skills (Tags) for both Projects and Experiences and raw Skills table */}
+          {(table === 'skills' || table === 'projects' || table === 'experiences') && (
             <div className="list-editor">
-              <label>Skills (Tags)</label>
+              <label>{table === 'skills' ? 'Tags in this Category' : 'Tech Stack / Skills'}</label>
               {(formData.skills || []).map((s, i) => (
                 <div key={i} className="list-row">
                   <input value={s.tag || ''} onChange={(e) => handleArrayChange('skills', i, 'tag', e.target.value)} />
                   <button onClick={() => removeArrayItem('skills', i)} className="btn-danger-small"><Trash2 size={14}/></button>
                 </div>
               ))}
-              <button onClick={() => addArrayItem('skills', { tag: '' })} className="btn-add"><Plus size={14}/> Add Skill Tag</button>
+              <button onClick={() => addArrayItem('skills', { tag: '' })} className="btn-add"><Plus size={14}/> Add Tag</button>
             </div>
           )}
         </div>

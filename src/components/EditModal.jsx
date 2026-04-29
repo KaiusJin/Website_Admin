@@ -131,17 +131,31 @@ export default function EditModal({ isOpen, onClose, onSave, item, table }) {
             </select>
           </div>
 
-          {/* List Fields (Bullets / Skills) */}
-          {(table !== 'skills' && table !== 'awards') && (
+          {/* List Fields (Bullets / Skills / Tags) */}
+          {table !== 'skills' && (
             <div className="list-editor">
-              <label>Bullets / Highlights</label>
-              {(formData.bullets || []).map((b, i) => (
+              <label>{table === 'projects' ? 'Tech Stack Tags' : 'Bullets / Highlights'}</label>
+              {((table === 'projects' ? formData.tags : formData.bullets) || []).map((item, i) => (
                 <div key={i} className="list-row">
-                  <input value={b.text || ''} onChange={(e) => handleArrayChange('bullets', i, 'text', e.target.value)} />
-                  <button onClick={() => removeArrayItem('bullets', i)} className="btn-danger-small"><Trash2 size={14}/></button>
+                  <input 
+                    value={typeof item === 'string' ? item : item.text || ''} 
+                    onChange={(e) => {
+                      if (table === 'projects') {
+                        handleArrayChange('tags', i, null, e.target.value);
+                      } else {
+                        handleArrayChange('bullets', i, 'text', e.target.value);
+                      }
+                    }} 
+                  />
+                  <button onClick={() => removeArrayItem(table === 'projects' ? 'tags' : 'bullets', i)} className="btn-danger-small"><Trash2 size={14}/></button>
                 </div>
               ))}
-              <button onClick={() => addArrayItem('bullets', { text: '' })} className="btn-add"><Plus size={14}/> Add Bullet</button>
+              <button 
+                onClick={() => addArrayItem(table === 'projects' ? 'tags' : 'bullets', table === 'projects' ? '' : { text: '' })} 
+                className="btn-add"
+              >
+                <Plus size={14}/> Add {table === 'projects' ? 'Tag' : 'Bullet'}
+              </button>
             </div>
           )}
 

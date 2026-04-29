@@ -112,6 +112,13 @@ export default function EditModal({ isOpen, onClose, onSave, item, table }) {
             </>
           )}
 
+          {(table === 'projects' || table === 'experiences' || table === 'awards') && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              {renderField("Link URL", "link")}
+              {renderField("Link Text", "link_text")}
+            </div>
+          )}
+
           <div className="input-group">
             <label>Visibility</label>
             <select 

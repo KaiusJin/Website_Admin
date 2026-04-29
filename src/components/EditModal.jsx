@@ -116,13 +116,14 @@ export default function EditModal({ isOpen, onClose, onSave, item, table }) {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
              {table === 'projects' && (
                <>
-                 {renderField("GitHub/Project Link", "github_link")}
+                 {renderField("GitHub Repo Link", "github_link")}
+                 {renderField("Live Demo / Web Link", "link")}
                  <div className="input-group">
-                   <label>Link Label (Optional)</label>
+                   <label>Demo Link Label (Optional)</label>
                    <input 
                      type="text" 
                      value={formData.link_text || ''} 
-                     placeholder="Default: View on GitHub"
+                     placeholder="Default: Visit Website"
                      onChange={(e) => handleChange('link_text', e.target.value)} 
                    />
                  </div>

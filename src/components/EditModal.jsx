@@ -114,12 +114,48 @@ export default function EditModal({ isOpen, onClose, onSave, item, table }) {
 
           {/* Links Logic */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-             {table === 'projects' && renderField("GitHub/Project Link", "github_link")}
-             {table === 'experiences' && renderField("Website Link", "link")}
-             {table === 'awards' && renderField("Credential Link", "link")}
-             
-             {(table === 'experiences' || table === 'awards') && renderField("Link Label", "link_text")}
-             {table === 'projects' && renderField("Link Label (Optional)", "link_text")}
+             {table === 'projects' && (
+               <>
+                 {renderField("GitHub/Project Link", "github_link")}
+                 <div className="input-group">
+                   <label>Link Label (Optional)</label>
+                   <input 
+                     type="text" 
+                     value={formData.link_text || ''} 
+                     placeholder="Default: View on GitHub"
+                     onChange={(e) => handleChange('link_text', e.target.value)} 
+                   />
+                 </div>
+               </>
+             )}
+             {table === 'experiences' && (
+               <>
+                 {renderField("Website Link", "link")}
+                 <div className="input-group">
+                   <label>Link Label (Optional)</label>
+                   <input 
+                     type="text" 
+                     value={formData.link_text || ''} 
+                     placeholder="Default: Visit Official Website"
+                     onChange={(e) => handleChange('link_text', e.target.value)} 
+                   />
+                 </div>
+               </>
+             )}
+             {table === 'awards' && (
+               <>
+                 {renderField("Credential Link", "link")}
+                 <div className="input-group">
+                   <label>Link Label (Optional)</label>
+                   <input 
+                     type="text" 
+                     value={formData.link_text || ''} 
+                     placeholder="Default: View Certificate"
+                     onChange={(e) => handleChange('link_text', e.target.value)} 
+                   />
+                 </div>
+               </>
+             )}
           </div>
 
           <div className="input-group">

@@ -159,17 +159,6 @@ export default function EditModal({ isOpen, onClose, onSave, item, table }) {
              )}
           </div>
 
-          <div className="input-group">
-            <label>Visibility</label>
-            <select 
-              value={formData.visibility || 'public'} 
-              onChange={(e) => handleChange('visibility', e.target.value)}
-              className="admin-select"
-            >
-              <option value="public">Public</option>
-              <option value="v_only">Private</option>
-            </select>
-          </div>
 
           {/* List Fields (Bullets) */}
           {(table !== 'skills') && (
@@ -177,7 +166,7 @@ export default function EditModal({ isOpen, onClose, onSave, item, table }) {
               <label>Bullets / Highlights</label>
               {(formData.bullets || []).map((b, i) => (
                 <div key={i} className="list-row">
-                  <input value={b.text || ''} onChange={(e) => handleArrayChange('bullets', i, 'text', e.target.value)} />
+                  <input type="text" value={b.text || ''} onChange={(e) => handleArrayChange('bullets', i, 'text', e.target.value)} />
                   <button onClick={() => removeArrayItem('bullets', i)} className="btn-danger-small"><Trash2 size={14}/></button>
                 </div>
               ))}
@@ -191,7 +180,7 @@ export default function EditModal({ isOpen, onClose, onSave, item, table }) {
               <label>{table === 'skills' ? 'Tags in this Category' : 'Tech Stack / Skills'}</label>
               {(formData.skills || []).map((s, i) => (
                 <div key={i} className="list-row">
-                  <input value={s.tag || ''} onChange={(e) => handleArrayChange('skills', i, 'tag', e.target.value)} />
+                  <input type="text" value={s.tag || ''} onChange={(e) => handleArrayChange('skills', i, 'tag', e.target.value)} />
                   <button onClick={() => removeArrayItem('skills', i)} className="btn-danger-small"><Trash2 size={14}/></button>
                 </div>
               ))}

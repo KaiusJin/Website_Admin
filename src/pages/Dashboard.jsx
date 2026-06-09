@@ -18,7 +18,7 @@ export default function Dashboard() {
   return (
     <div className="admin-layout">
       <aside className="sidebar">
-        <h1>Admin Panel</h1>
+        <h1>Kaius <span>Jin</span> Admin</h1>
         <nav style={{ flex: 1 }}>
           {tabs.map(tab => (
             <div 

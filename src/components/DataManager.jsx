@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Eye, EyeOff, Edit, Trash2, Plus, GripVertical } from 'lucide-react';
+import { Edit, Trash2, Plus, GripVertical } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import EditModal from './EditModal';
 
@@ -72,17 +72,6 @@ export default function DataManager({ table }) {
     }
   };
 
-  const toggleVisibility = async (item) => {
-    const newVisibility = item.visibility === 'public' ? 'v_only' : 'public';
-    const { error } = await supabase
-      .from(table)
-      .update({ visibility: newVisibility })
-      .eq('id', item.id);
-    
-    if (!error) {
-      setData(data.map(d => d.id === item.id ? { ...d, visibility: newVisibility } : d));
-    }
-  };
 
   const deleteItem = async (id) => {
     if (!window.confirm('Are you sure you want to delete this item?')) return;
@@ -103,7 +92,6 @@ export default function DataManager({ table }) {
                   <tr>
                     <th style={{ width: '40px' }}></th>
                     <th>Title / Category</th>
-                    <th>Visibility</th>
                     <th style={{ textAlign: 'right' }}>Actions</th>
                   </tr>
                 </thead>
@@ -125,15 +113,6 @@ export default function DataManager({ table }) {
                           <td>
                             <div style={{ fontWeight: '600' }}>{item.title || item.category}</div>
                             <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{item.date_badge || item.category_slug}</div>
-                          </td>
-                          <td>
-                            <span 
-                              className={`badge ${item.visibility === 'public' ? 'badge-public' : 'badge-private'}`}
-                              onClick={() => toggleVisibility(item)}
-                              style={{ cursor: 'pointer' }}
-                            >
-                              {item.visibility === 'public' ? <><Eye size={12} /> Public</> : <><EyeOff size={12} /> Private</>}
-                            </span>
                           </td>
                           <td style={{ textAlign: 'right' }}>
                             <button 

@@ -51,7 +51,7 @@ export default function Dashboard() {
           <h2>{activeLabel}</h2>
         </header>
 
-        {activeTab === 'media' ? <MediaLibrary /> : <DataManager table={activeTab} />}
+        {activeTab === 'media' ? <MediaLibrary /> : <DataManager key={activeTab} table={activeTab} />}
       </main>
     </div>
   );

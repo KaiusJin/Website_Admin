@@ -1,20 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
+import MediaPicker from '../cms/MediaPicker';
 
 const experienceTables = ['work_experiences', 'club_experiences', 'volunteer_experiences'];
 const titleTables = ['projects', ...experienceTables, 'awards', 'personal_entries', 'journey_scene_content'];
 
-export default function EditModal({ isOpen, onClose, onSave, item, table }) {
-  const [formData, setFormData] = useState({});
+export default function EditModal({ onClose, onSave, item, table, busy, entries }) {
+  const [formData, setFormData] = useState(() => item || (table === 'personal_entries' ? { kind: 'daily' } : {}));
   const isExperience = experienceTables.includes(table);
-
-  useEffect(() => {
-    // Keep the baseline modal reset behavior; visibility is intentionally gone.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setFormData(item || { order: 0 });
-  }, [item, table, isOpen]);
-
-  if (!isOpen) return null;
 
   const handleChange = (field, value) => {
     const newFormData = { ...formData, [field]: value };
@@ -74,16 +67,14 @@ export default function EditModal({ isOpen, onClose, onSave, item, table }) {
       <div className="modal-content">
         <div className="modal-header">
           <h2>{item ? 'Edit Entry' : 'New Entry'} - {table}</h2>
-          <button onClick={onClose} className="btn-icon"><X /></button>
+          <button disabled={busy} onClick={onClose} className="btn-icon"><X /></button>
         </div>
 
-        <div className="modal-body">
+        <fieldset className="modal-body" disabled={busy} style={{ border: 0 }}>
           {titleTables.includes(table) && renderField('Title', 'title')}
           {table === 'skills' && renderField('Category Name', 'category')}
-          {table === 'skills' && renderField('Category Slug (url-safe)', 'category_slug')}
 
           {isExperience && renderField('Role', 'role')}
-          {isExperience && renderField('Role Icon (FontAwesome class)', 'role_icon')}
 
           {(table === 'projects' || isExperience) && (
             <>
@@ -115,6 +106,7 @@ export default function EditModal({ isOpen, onClose, onSave, item, table }) {
 
           {table === 'projects' && (
             <>
+              <MediaPicker kind="image" onSelect={asset => setFormData(previous => ({ ...previous, image_url: asset.url, image_alt: asset.alt }))} />
               {renderField('Cover Image URL', 'image_url')}
               {renderField('Cover Image Description', 'image_alt')}
             </>
@@ -137,16 +129,19 @@ export default function EditModal({ isOpen, onClose, onSave, item, table }) {
               {renderField('Email', 'email', 'email')}
               {renderField('GitHub URL', 'github', 'url')}
               {renderField('LinkedIn URL', 'linkedin', 'url')}
+              <MediaPicker kind="pdf" onSelect={asset => handleChange('resume_url', asset.url)} />
               {renderField('Resume PDF URL', 'resume_url', 'url')}
             </>
           )}
 
           {table === 'personal_entries' && (
             <>
-              {renderField('Category', 'kind')}
+              <label className="input-group">Category<select value={formData.kind} onChange={event => handleChange('kind', event.target.value)}>{['photography', 'travel', 'daily', 'music'].map(kind => <option key={kind} value={kind}>{kind}</option>)}</select></label>
               {renderTextarea('Story', 'body')}
               {renderField('Date', 'date', 'date')}
+              {formData.kind === 'music' && <MediaPicker kind="audio" onSelect={asset => handleChange('external_url', asset.url)} />}
               {renderField('Music / Related URL', 'external_url', 'url')}
+              <MediaPicker kind="image" onSelect={asset => addArrayItem('images', { url: asset.url, alt: asset.alt, caption: '' })} />
               <div className="list-editor">
                 <label>Photo Gallery</label>
                 {(formData.images || []).map((photo, index) => (
@@ -164,7 +159,7 @@ export default function EditModal({ isOpen, onClose, onSave, item, table }) {
 
           {table === 'journey_scene_content' && (
             <>
-              {renderField('Scene', 'scene_id')}
+              <label className="input-group">Scene<select value={formData.scene_id || ''} onChange={event => handleChange('scene_id', event.target.value)}><option value="" disabled>Choose a scene</option>{['cottage', 'meadow', 'town', 'library', 'academy', 'lake', 'station'].filter(scene => scene === item?.scene_id || !entries.some(entry => entry.scene_id === scene)).map(scene => <option key={scene} value={scene}>{scene}</option>)}</select></label>
               {renderTextarea('Description', 'description')}
             </>
           )}
@@ -216,11 +211,11 @@ export default function EditModal({ isOpen, onClose, onSave, item, table }) {
               <button onClick={() => addArrayItem('skills', { tag: '' })} className="btn-add"><Plus size={14} /> Add Tag</button>
             </div>
           )}
-        </div>
+        </fieldset>
 
         <div className="modal-footer">
-          <button className="btn btn-outline" onClick={onClose}>Cancel</button>
-          <button className="btn btn-primary" onClick={() => onSave(formData)}>Save Changes</button>
+          <button disabled={busy} className="btn btn-outline" onClick={onClose}>Cancel</button>
+          <button disabled={busy} className="btn btn-primary" onClick={() => onSave(formData)}>{busy ? 'Saving…' : 'Save Changes'}</button>
         </div>
       </div>
     </div>

@@ -172,12 +172,7 @@ export default function EditModal({ onClose, onSave, item, table, busy, entries 
                 {renderField('Demo Link Label (Optional)', 'link_text')}
               </>
             )}
-            {isExperience && (
-              <>
-                {renderField('Website Link', 'link')}
-                {renderField('Link Label (Optional)', 'link_text')}
-              </>
-            )}
+            {isExperience && renderField('Website Link', 'link')}
             {table === 'awards' && (
               <>
                 {renderField('Credential Link', 'link')}

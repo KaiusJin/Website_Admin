@@ -1,9 +1,12 @@
 const field=(key,label,type='text',translated=false)=>({key,label,type,translated});
 const title=field('title','Title','text',true),bullets=field('bullets','Highlights · one per line','bullets',true),skills=field('skills','Technologies · one per line','tags'),link=field('link','Website URL','url'),linkText=field('link_text','Link label','text',true);
 const dates=[field('start_date','Start date'),field('end_date','End date'),field('is_present','Ongoing','checkbox'),field('date_badge','Date label','text',true)];
+const experienceFields=[title,field('role','Role','text',true),field('role_icon','Role icon'),...dates,bullets,skills,link,linkText];
 export const schemas={
  projects:{label:'Projects',fields:[title,...dates,bullets,skills,field('github_link','GitHub URL','url'),link,linkText,field('image_url','Cover image URL','url'),field('image_alt','Cover description','text',true)]},
- experiences:{label:'Experience',fields:[title,field('role','Role','text',true),field('role_icon','Role icon'),...dates,bullets,skills,link,linkText]},
+ work_experiences:{label:'Work experience',fields:experienceFields},
+ club_experiences:{label:'Clubs & design teams',fields:experienceFields},
+ volunteer_experiences:{label:'Volunteer experience',fields:experienceFields},
  awards:{label:'Awards',fields:[title,field('organization','Organization','text',true),field('year','Year'),field('description','Description','textarea',true),bullets,link,linkText]},
  skills:{label:'Skills',fields:[field('category','Category','text',true),field('category_slug','Category slug'),skills]},
  site_profile:{label:'Profile & contact',singleton:true,fields:[field('heading','Heading','text',true),field('intro','Introduction','textarea',true),field('bio','Biography','textarea',true),field('location','Location','text',true),field('email','Email','email'),field('github','GitHub URL','url'),field('linkedin','LinkedIn URL','url'),field('resume_url','Resume PDF URL','url')]},

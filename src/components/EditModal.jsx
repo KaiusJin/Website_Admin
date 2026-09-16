@@ -3,6 +3,7 @@ import { X, Plus, Trash2 } from 'lucide-react';
 
 export default function EditModal({ isOpen, onClose, onSave, item, table }) {
   const [formData, setFormData] = useState({});
+  const isExperience = table.endsWith('_experiences');
 
   useEffect(() => {
     if (item) {
@@ -73,10 +74,10 @@ export default function EditModal({ isOpen, onClose, onSave, item, table }) {
           {table === 'skills' && renderField("Category Name", "category")}
           {table === 'skills' && renderField("Category Slug (url-safe)", "category_slug")}
           
-          {table === 'experiences' && renderField("Role", "role")}
-          {table === 'experiences' && renderField("Role Icon (FontAwesome class)", "role_icon")}
+          {isExperience && renderField("Role", "role")}
+          {isExperience && renderField("Role Icon (FontAwesome class)", "role_icon")}
           
-          {(table === 'projects' || table === 'experiences') && (
+          {(table === 'projects' || isExperience) && (
             <>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 {renderField("Start Date", "start_date")}
@@ -129,7 +130,7 @@ export default function EditModal({ isOpen, onClose, onSave, item, table }) {
                  </div>
                </>
              )}
-             {table === 'experiences' && (
+             {isExperience && (
                <>
                  {renderField("Website Link", "link")}
                  <div className="input-group">
@@ -174,8 +175,8 @@ export default function EditModal({ isOpen, onClose, onSave, item, table }) {
             </div>
           )}
 
-          {/* Skills (Tags) for both Projects and Experiences and raw Skills table */}
-          {(table === 'skills' || table === 'projects' || table === 'experiences') && (
+          {/* Skills (Tags) for projects, all experience tables and the raw Skills table */}
+          {(table === 'skills' || table === 'projects' || isExperience) && (
             <div className="list-editor">
               <label>{table === 'skills' ? 'Tags in this Category' : 'Tech Stack / Skills'}</label>
               {(formData.skills || []).map((s, i) => (

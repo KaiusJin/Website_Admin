@@ -4,6 +4,19 @@ import MediaPicker from '../cms/MediaPicker';
 
 const experienceTables = ['work_experiences', 'club_experiences', 'volunteer_experiences'];
 const titleTables = ['projects', ...experienceTables, 'awards', 'personal_entries', 'journey_scene_content'];
+const journeyFields = [
+  ['Welcome introduction', 'welcome_intro'],
+  ['Focus label', 'focus'],
+  ['Profile heading', 'heading'],
+  ['Profile introduction', 'intro'],
+  ['Profile biography', 'bio'],
+  ['Education school', 'education_school'],
+  ['Education field', 'education_field'],
+  ['Location detail', 'location_detail'],
+  ['Contact heading', 'contact_heading'],
+  ['Contact introduction', 'contact_intro'],
+  ['Contact closing', 'contact_outro'],
+];
 
 export default function EditModal({ onClose, onSave, item, table, busy, entries }) {
   const [formData, setFormData] = useState(() => item || (table === 'personal_entries' ? { kind: 'daily' } : {}));
@@ -20,6 +33,13 @@ export default function EditModal({ onClose, onSave, item, table, busy, entries 
     }
 
     setFormData(newFormData);
+  };
+
+  const handleJourneyChange = (locale, field, value) => {
+    setFormData(previous => ({
+      ...previous,
+      [locale]: { ...(previous[locale] || {}), [field]: value },
+    }));
   };
 
   const handleArrayChange = (field, index, subfield, value) => {
@@ -60,6 +80,31 @@ export default function EditModal({ onClose, onSave, item, table, busy, entries 
       <label>{label}</label>
       <textarea rows="5" value={formData[field] || ''} onChange={(event) => handleChange(field, event.target.value)} />
     </div>
+  );
+
+  const renderStringList = (label, field) => (
+    <div className="list-editor">
+      <label>{label}</label>
+      {(formData[field] || []).map((value, index) => (
+        <div className="list-row" key={index}>
+          <input type="text" value={value} onChange={event => handleArrayChange(field, index, null, event.target.value)} />
+          <button type="button" onClick={() => removeArrayItem(field, index)} className="btn-danger-small"><Trash2 size={14} /></button>
+        </div>
+      ))}
+      <button type="button" onClick={() => addArrayItem(field, '')} className="btn-add"><Plus size={14} /> Add line</button>
+    </div>
+  );
+
+  const renderJourneyFields = (locale, label) => (
+    <section>
+      <h3>Journey — {label}</h3>
+      {journeyFields.map(([fieldLabel, field]) => (
+        <div className="input-group" key={field}>
+          <label>{fieldLabel}</label>
+          <textarea rows="3" value={formData[locale]?.[field] || ''} onChange={event => handleJourneyChange(locale, field, event.target.value)} />
+        </div>
+      ))}
+    </section>
   );
 
   return (
@@ -122,15 +167,25 @@ export default function EditModal({ onClose, onSave, item, table, busy, entries 
 
           {table === 'site_profile' && (
             <>
+              <h3>Classic profile</h3>
+              {renderField('Name', 'name')}
+              {renderField('Hero badge', 'hero_badge')}
+              {renderStringList('Hero tags', 'hero_tags')}
               {renderField('Heading', 'heading')}
               {renderTextarea('Introduction', 'intro')}
               {renderTextarea('Biography', 'bio')}
               {renderField('Location', 'location')}
+              {renderField('Education', 'education')}
+              {renderField('Focus areas', 'focus_areas')}
+              <h3>Contact links</h3>
               {renderField('Email', 'email', 'email')}
               {renderField('GitHub URL', 'github', 'url')}
               {renderField('LinkedIn URL', 'linkedin', 'url')}
               <MediaPicker kind="pdf" onSelect={asset => handleChange('resume_url', asset.url)} />
               {renderField('Resume PDF URL', 'resume_url', 'url')}
+              {renderStringList('Classic contact slogans', 'contact_slogans')}
+              {renderJourneyFields('journey_en', 'English')}
+              {renderJourneyFields('journey_zh', '中文')}
             </>
           )}
 

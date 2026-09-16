@@ -11,7 +11,7 @@ Private React/Vite administration interface for portfolio content stored in Supa
 - Personal journal and journey scene descriptions
 - Public media uploads
 
-Content is written directly to the live tables. There is no draft, publish-status, visibility, translation, or content-preview workflow.
+Content is written directly to the live tables. The Profile & Contact editor includes Classic copy and Journey English/Chinese copy in one profile record. There is no draft, publish-status, visibility, or content-preview workflow.
 
 ## Local development
 
@@ -29,4 +29,4 @@ npm install
 npm run dev
 ```
 
-Run `npm run lint` and `npm run build` before deployment. Database migrations live in `Website_Public/supabase`.
+Run `npm run lint` and `npm run build` before deployment. The live Supabase project is the database source of truth; see `Website_Public/supabase/README.md` for its current content model. The seven applied migration SQL files are retained in Website_Public/supabase/migrations/; use the live database and its recorded migration history when planning future changes.

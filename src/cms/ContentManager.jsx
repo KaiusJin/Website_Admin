@@ -2,11 +2,42 @@ import {useEffect,useState} from 'react';
 import {supabase} from '../lib/supabase';
 import {schemas} from './schema';
 import Editor from './Editor';
+
 export default function ContentManager({table}){
- const [rows,setRows]=useState([]),[drafts,setDrafts]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState(''),[revision,setRevision]=useState(0),[editing,setEditing]=useState(null),[busy,setBusy]=useState(false);
- const reload=()=>setRevision(n=>n+1);
- useEffect(()=>{const abort=new AbortController();Promise.all([supabase.from(table).select('*').order('order').abortSignal(abort.signal),supabase.from('content_drafts').select('*').eq('target_table',table).abortSignal(abort.signal)]).then(([r,d])=>{if(abort.signal.aborted)return;if(r.error||d.error)setError((r.error||d.error).message);else{setRows(r.data||[]);setDrafts(d.data||[]);setError('');}setLoading(false);});return()=>abort.abort();},[table,revision]);
- const move=async(index,delta)=>{setBusy(true);setError('');const reordered=[...rows];[reordered[index],reordered[index+delta]]=[reordered[index+delta],reordered[index]];const {error}=await supabase.rpc('journey_reorder',{p_table:table,p_rows:reordered.map(({id,updated_at})=>({id,updated_at}))});if(error)setError(error.message);reload();setBusy(false);};
- const pending=drafts.filter(d=>d.state==='draft'&&!rows.some(r=>r.id===d.target_id));
- return <><div className="cms-toolbar"><p>English and Chinese content shared by your classic site and journey.</p><button className="btn btn-outline" disabled={busy} onClick={reload}>Refresh</button>{!(schemas[table].singleton&&(rows.length||pending.length))&&<button className="btn btn-primary" onClick={()=>setEditing({item:null,draft:null})}>New entry</button>}</div>{error&&<p role="alert" className="cms-error">{error}</p>}{loading?<p>Loading content…</p>:<div className="card cms-table"><table><thead><tr><th>Content</th><th>Status</th><th>Order</th><th>Edit</th></tr></thead><tbody>{rows.map((r,i)=>{const d=drafts.find(d=>d.target_id===r.id);return <tr key={r.id}><td><strong>{r.title||r.category||r.heading}</strong><small>{r.kind||r.scene_id||r.role||r.year}</small></td><td>{r.visibility}{d?.state==='draft'&&<span className="cms-badge">Draft changes</span>}</td><td><button className="btn btn-outline" disabled={busy||i===0} aria-label={`Move ${r.title||r.category||'entry'} up`} onClick={()=>move(i,-1)}>↑</button> <button className="btn btn-outline" disabled={busy||i===rows.length-1} aria-label={`Move ${r.title||r.category||'entry'} down`} onClick={()=>move(i,1)}>↓</button></td><td><button className="btn btn-outline" onClick={()=>setEditing({item:r,draft:d})}>Edit</button></td></tr>;})}{pending.map(d=><tr key={d.id}><td>{d.payload.title||d.payload.category||d.payload.heading||'Untitled'}</td><td>Private draft</td><td>—</td><td><button className="btn btn-outline" onClick={()=>setEditing({item:null,draft:d})}>Continue draft</button></td></tr>)}</tbody></table>{!rows.length&&!pending.length&&<p className="cms-empty">No entries yet. Add your first real story when you are ready.</p>}</div>}{editing&&<Editor key={editing.item?.id||editing.draft?.id||'new'} table={table} {...editing} onClose={()=>setEditing(null)} onSaved={reload}/>}</>;
+ const [rows,setRows]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState(''),[revision,setRevision]=useState(0),[editing,setEditing]=useState(null),[busy,setBusy]=useState(false);
+ const reload=()=>{setLoading(true);setRevision(n=>n+1);};
+ useEffect(()=>{
+  const abort=new AbortController();
+  supabase.from(table).select('*').order('order').abortSignal(abort.signal).then(({data,error})=>{
+   if(abort.signal.aborted)return;
+   if(error)setError(error.message);else{setRows(data||[]);setError('');}
+   setLoading(false);
+  });
+  return()=>abort.abort();
+ },[table,revision]);
+ const move=async(index,delta)=>{
+  setBusy(true);setError('');
+  const reordered=[...rows];[reordered[index],reordered[index+delta]]=[reordered[index+delta],reordered[index]];
+  const {error}=await supabase.rpc('journey_reorder',{p_table:table,p_rows:reordered.map(({id,updated_at})=>({id,updated_at}))});
+  if(error)setError(error.message);reload();setBusy(false);
+ };
+ const remove=async row=>{
+  if(!window.confirm(`Delete ${row.title||row.category||row.heading||'this entry'}?`))return;
+  setBusy(true);setError('');
+  const {error}=await supabase.from(table).delete().eq('id',row.id);
+  if(error)setError(error.message);else setRows(current=>current.filter(item=>item.id!==row.id));
+  setBusy(false);
+ };
+ const nextOrder=rows.length?Math.max(...rows.map(row=>Number(row.order)||0))+1:0;
+ return <>
+  <div className="cms-toolbar">
+   <button className="btn btn-outline" disabled={busy} onClick={reload}>Refresh</button>
+   {!(schemas[table].singleton&&rows.length)&&<button className="btn btn-primary" onClick={()=>setEditing({item:null,order:nextOrder})}>New entry</button>}
+  </div>
+  {error&&<p role="alert" className="cms-error">{error}</p>}
+  {loading?<p>Loading content…</p>:<div className="card cms-table"><table><thead><tr><th>Content</th><th>Order</th><th>Actions</th></tr></thead><tbody>
+   {rows.map((row,index)=><tr key={row.id}><td><strong>{row.title||row.category||row.heading}</strong><small>{row.kind||row.scene_id||row.role||row.year||row.category_slug}</small></td><td><button className="btn btn-outline" disabled={busy||index===0} aria-label={`Move ${row.title||row.category||'entry'} up`} onClick={()=>move(index,-1)}>↑</button> <button className="btn btn-outline" disabled={busy||index===rows.length-1} aria-label={`Move ${row.title||row.category||'entry'} down`} onClick={()=>move(index,1)}>↓</button></td><td><button className="btn btn-outline" disabled={busy} onClick={()=>setEditing({item:row})}>Edit</button> <button className="btn btn-outline cms-delete" disabled={busy} onClick={()=>remove(row)}>Delete</button></td></tr>)}
+  </tbody></table>{!rows.length&&<p className="cms-empty">No entries yet.</p>}</div>}
+  {editing&&<Editor key={editing.item?.id||'new'} table={table} item={editing.item} order={editing.order} onClose={()=>setEditing(null)} onSaved={()=>{setEditing(null);reload();}}/>}
+ </>;
 }

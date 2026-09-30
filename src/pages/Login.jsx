@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { useState } from "react";
+import { supabase } from "../lib/supabase";
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -11,9 +11,12 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
     if (error) setError(error.message);
     setLoading(false);
   };
@@ -21,33 +24,46 @@ export default function Login() {
   return (
     <div className="login-container">
       <form className="login-box" onSubmit={handleLogin}>
-        <h1 style={{ textAlign: 'center' }}>Admin Access</h1>
-        {error && <p style={{ color: 'var(--danger)', marginBottom: '1rem', fontSize: '0.8rem' }}>{error}</p>}
-        
+        <p className="login-brand">Kaius Jin.</p>
+        <h1>Sign in</h1>
+        {error && (
+          <p role="alert" className="cms-error">
+            {error}
+          </p>
+        )}
+
         <div className="input-group">
-          <label>Email Address</label>
-          <input 
-            type="email" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
+          <label htmlFor="login-email">Email</label>
+          <input
+            id="login-email"
+            autoComplete="username"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="your@email.com"
-            required 
+            required
           />
         </div>
 
         <div className="input-group">
-          <label>Password</label>
-          <input 
-            type="password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
+          <label htmlFor="login-password">Password</label>
+          <input
+            id="login-password"
+            autoComplete="current-password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            required 
+            required
           />
         </div>
 
-        <button className="btn btn-primary" style={{ width: '100%', padding: '0.75rem' }} disabled={loading}>
-          {loading ? 'Authenticating...' : 'Sign In'}
+        <button
+          className="btn btn-primary"
+          style={{ width: "100%", padding: "0.75rem" }}
+          disabled={loading}
+        >
+          {loading ? "Signing in…" : "Sign In"}
         </button>
       </form>
     </div>

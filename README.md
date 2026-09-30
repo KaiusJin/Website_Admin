@@ -6,7 +6,7 @@ Private React/Vite administration interface for portfolio content stored in Supa
 
 - Projects
 - Work, club/design-team, and volunteer experience
-- Awards and skills
+- Awards (title, organization, year, credential URL) and skills
 - Profile and contact details
 - Personal journal and journey scene descriptions
 - Public media uploads
@@ -29,4 +29,8 @@ npm install
 npm run dev
 ```
 
+<<<<<<< Updated upstream
 Run `npm run lint` and `npm run build` before deployment. Database migrations live in `Website_Public/supabase`.
+=======
+Run `npm run lint` and `npm run build` before deployment. The live Supabase project is the database source of truth; see `Website_Public/supabase/README.md` for its current content model. The applied migration SQL files are retained in Website_Public/supabase/migrations/; use the live database and its recorded migration history when planning future changes.
+>>>>>>> Stashed changes

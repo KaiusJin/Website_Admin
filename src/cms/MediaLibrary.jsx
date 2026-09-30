@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import './cms.css';
+import useMediaAssets from './useMediaAssets';
 
 const accepted = ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'audio/mpeg', 'audio/ogg', 'audio/wav', 'application/pdf'];
 
 export default function MediaLibrary() {
-  const [assets, setAssets] = useState([]);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
@@ -14,21 +14,7 @@ export default function MediaLibrary() {
   const [file, setFile] = useState(null);
   const [alt, setAlt] = useState('');
 
-  useEffect(() => {
-    let active = true;
-    supabase
-      .from('media_assets')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (!active) return;
-        if (error) setError(error.message);
-        else setAssets(data || []);
-      });
-    return () => { active = false; };
-  }, [revision]);
-
-  const publicUrl = asset => supabase.storage.from('journey-media').getPublicUrl(asset.path).data.publicUrl;
+  const { assets, error: loadError } = useMediaAssets(revision);
 
   const upload = async () => {
     if (!file) return;
@@ -71,20 +57,20 @@ export default function MediaLibrary() {
 
   const copy = async asset => {
     try {
-      await navigator.clipboard.writeText(publicUrl(asset));
+      await navigator.clipboard.writeText(asset.url);
       setNotice('URL copied.');
     } catch {
-      setPreview({ ...asset, url: publicUrl(asset) });
+      setPreview(asset);
     }
   };
 
   return (
     <>
-      <p className="cms-description">Upload images, audio or a resume, then copy the URL into the related content entry.</p>
+      <p className="cms-description">Upload images, audio or PDFs for your content.</p>
       <section className="card">
         <h3>Upload media</h3>
         <label className="input-group">
-          Image, audio or resume PDF · up to 20 MB
+          Image, audio or PDF · up to 20 MB
           <input key={file?.name || 'empty'} type="file" accept={accepted.join(',')} disabled={busy} onChange={event => setFile(event.target.files?.[0] || null)} />
         </label>
         <label className="input-group">
@@ -94,7 +80,7 @@ export default function MediaLibrary() {
         <button className="btn btn-primary" disabled={busy || !file} onClick={upload}>{busy ? 'Working…' : 'Upload'}</button>
       </section>
 
-      {error && <p role="alert" className="cms-error">{error}</p>}
+      {(error || loadError) && <p role="alert" className="cms-error">{error || loadError}</p>}
       {notice && <p role="status" className="cms-success">{notice}</p>}
 
       <div className="cms-media-grid">
@@ -104,7 +90,7 @@ export default function MediaLibrary() {
             <p>{asset.alt || asset.mime}</p>
             <small>{(asset.size / 1024 / 1024).toFixed(2)} MB</small>
             <div className="cms-toolbar">
-              <button className="btn btn-outline" disabled={busy} onClick={() => setPreview({ ...asset, url: publicUrl(asset) })}>Preview</button>
+              <button className="btn btn-outline" disabled={busy} onClick={() => setPreview(asset)}>Preview</button>
               <button className="btn btn-outline" onClick={() => copy(asset)}>Copy URL</button>
             </div>
           </article>

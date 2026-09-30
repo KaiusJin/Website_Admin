@@ -5,10 +5,6 @@ import { X } from "lucide-react";
 import ArrayEditor from "./ArrayEditor";
 import MediaPicker from "../cms/MediaPicker";
 
-<<<<<<< Updated upstream
-const experienceTables = ['work_experiences', 'club_experiences', 'volunteer_experiences'];
-const titleTables = ['projects', ...experienceTables, 'awards', 'personal_entries', 'journey_scene_content'];
-=======
 const journeyFields = [
   ["Welcome introduction", "welcome_intro"],
   ["Focus label", "focus"],
@@ -22,7 +18,6 @@ const journeyFields = [
   ["Contact introduction", "contact_intro"],
   ["Contact closing", "contact_outro"],
 ];
->>>>>>> Stashed changes
 
 export default function EditModal({
   onClose,
@@ -58,46 +53,6 @@ export default function EditModal({
     });
   };
 
-<<<<<<< Updated upstream
-  const handleArrayChange = (field, index, subfield, value) => {
-    const newArray = [...(formData[field] || [])];
-    newArray[index] = subfield
-      ? { ...newArray[index], [subfield]: value }
-      : value;
-    setFormData(previous => ({ ...previous, [field]: newArray }));
-  };
-
-  const addArrayItem = (field, defaultValue) => {
-    setFormData(previous => ({
-      ...previous,
-      [field]: [...(previous[field] || []), defaultValue],
-    }));
-  };
-
-  const removeArrayItem = (field, index) => {
-    setFormData(previous => ({
-      ...previous,
-      [field]: previous[field].filter((_, itemIndex) => itemIndex !== index),
-    }));
-  };
-
-  const renderField = (label, field, type = 'text') => (
-    <div className="input-group" key={field}>
-      <label>{label}</label>
-      <input
-        type={type}
-        value={formData[field] || ''}
-        onChange={(event) => handleChange(field, type === 'number' ? parseInt(event.target.value, 10) : event.target.value)}
-      />
-    </div>
-  );
-
-  const renderTextarea = (label, field) => (
-    <div className="input-group" key={field}>
-      <label>{label}</label>
-      <textarea rows="5" value={formData[field] || ''} onChange={(event) => handleChange(field, event.target.value)} />
-    </div>
-=======
   const updateArray = (field, update) => {
     setFormData((previous) => ({
       ...previous,
@@ -128,7 +83,6 @@ export default function EditModal({
       <h3>Journey — {label}</h3>
       {journeyFields.map(([fieldLabel, field]) => renderField(fieldLabel, field, "textarea", locale))}
     </section>
->>>>>>> Stashed changes
   );
 
   return (
@@ -168,82 +122,6 @@ export default function EditModal({
 
             {isExperience && renderField("Role", "role")}
 
-<<<<<<< Updated upstream
-          {(table === 'projects' || isExperience) && (
-            <>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                {renderField('Start Date', 'start_date')}
-                <div className="input-group">
-                  <label>End Date</label>
-                  <input
-                    type="text"
-                    value={formData.end_date || ''}
-                    disabled={formData.is_present}
-                    onChange={(event) => handleChange('end_date', event.target.value)}
-                    style={{ opacity: formData.is_present ? 0.5 : 1, cursor: formData.is_present ? 'not-allowed' : 'text' }}
-                    placeholder={formData.is_present ? 'Present' : ''}
-                  />
-                </div>
-              </div>
-              <div className="input-group-row">
-                <input
-                  type="checkbox"
-                  id="is_present"
-                  checked={formData.is_present || false}
-                  onChange={(event) => handleChange('is_present', event.target.checked)}
-                />
-                <label htmlFor="is_present">Currently working here / In progress (Present)</label>
-              </div>
-            </>
-          )}
-
-          {table === 'projects' && (
-            <>
-              <MediaPicker kind="image" onSelect={asset => setFormData(previous => ({ ...previous, image_url: asset.url, image_alt: asset.alt }))} />
-              {renderField('Cover Image URL', 'image_url')}
-              {renderField('Cover Image Description', 'image_alt')}
-            </>
-          )}
-
-          {table === 'awards' && (
-            <>
-              {renderField('Organization', 'organization')}
-              {renderField('Year', 'year')}
-              {renderField('Description', 'description')}
-            </>
-          )}
-
-          {table === 'site_profile' && (
-            <>
-              {renderField('Heading', 'heading')}
-              {renderTextarea('Introduction', 'intro')}
-              {renderTextarea('Biography', 'bio')}
-              {renderField('Location', 'location')}
-              {renderField('Email', 'email', 'email')}
-              {renderField('GitHub URL', 'github', 'url')}
-              {renderField('LinkedIn URL', 'linkedin', 'url')}
-              <MediaPicker kind="pdf" onSelect={asset => handleChange('resume_url', asset.url)} />
-              {renderField('Resume PDF URL', 'resume_url', 'url')}
-            </>
-          )}
-
-          {table === 'personal_entries' && (
-            <>
-              <label className="input-group">Category<select value={formData.kind} onChange={event => handleChange('kind', event.target.value)}>{['photography', 'travel', 'daily', 'music'].map(kind => <option key={kind} value={kind}>{kind}</option>)}</select></label>
-              {renderTextarea('Story', 'body')}
-              {renderField('Date', 'date', 'date')}
-              {formData.kind === 'music' && <MediaPicker kind="audio" onSelect={asset => handleChange('external_url', asset.url)} />}
-              {renderField('Music / Related URL', 'external_url', 'url')}
-              <MediaPicker kind="image" onSelect={asset => addArrayItem('images', { url: asset.url, alt: asset.alt, caption: '' })} />
-              <div className="list-editor">
-                <label>Photo Gallery</label>
-                {(formData.images || []).map((photo, index) => (
-                  <div className="gallery-row" key={index}>
-                    <input type="url" placeholder="Image URL" value={photo.url || ''} onChange={(event) => handleArrayChange('images', index, 'url', event.target.value)} />
-                    <input type="text" placeholder="Image description" value={photo.alt || ''} onChange={(event) => handleArrayChange('images', index, 'alt', event.target.value)} />
-                    <input type="text" placeholder="Caption" value={photo.caption || ''} onChange={(event) => handleArrayChange('images', index, 'caption', event.target.value)} />
-                    <button onClick={() => removeArrayItem('images', index)} className="btn-danger-small"><Trash2 size={14} /></button>
-=======
             {(table === "projects" || isExperience) && (
               <>
                 <div className="form-grid">
@@ -264,7 +142,6 @@ export default function EditModal({
                       }}
                       placeholder={formData.is_present ? "Present" : ""}
                     />
->>>>>>> Stashed changes
                   </div>
                 </div>
                 <div className="input-group-row">

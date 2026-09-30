@@ -29,8 +29,10 @@ npm install
 npm run dev
 ```
 
-<<<<<<< Updated upstream
-Run `npm run lint` and `npm run build` before deployment. Database migrations live in `Website_Public/supabase`.
-=======
-Run `npm run lint` and `npm run build` before deployment. The live Supabase project is the database source of truth; see `Website_Public/supabase/README.md` for its current content model. The applied migration SQL files are retained in Website_Public/supabase/migrations/; use the live database and its recorded migration history when planning future changes.
->>>>>>> Stashed changes
+Run `npm run lint`, `npm test`, and `npm run build` before deployment.
+
+The live Supabase project is the database source of truth. See
+[the database documentation](https://github.com/KaiusJin/Website_Public/blob/main/supabase/README.md)
+for the current content model. Applied SQL migrations are retained in
+[Website_Public/supabase/migrations](https://github.com/KaiusJin/Website_Public/tree/main/supabase/migrations).
+Use the live database and its recorded migration history when planning future changes.
